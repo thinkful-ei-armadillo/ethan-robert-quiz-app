@@ -1,0 +1,11 @@
+label {
+  display:block;
+}
+
+.correct {
+  border: 2px solid green;
+}
+
+.wrong {
+  border: 2px solid red;
+}

@@ -15,7 +15,7 @@ const questionPool = [
     answer: 1,
   },
   {
-    prompt: "What is Ned Flanders' wife's name",
+    prompt: "What is Ned Flanders wife's name",
     choices: [
       'Ruth',
       'Edna',
@@ -150,29 +150,43 @@ const attachEventHandlers = function () {
     const userAnswer = parseInt($('input[name=userAnswer]:checked').val(), 10);
     state.userAnswer = userAnswer;
 
-    console.log(state.questionIDs[state.questionCounter] - 1, userAnswer, questionPool[state.questionIDs[state.questionCounter-1]].answer);
+    // console.log(state.questionIDs[state.questionCounter] - 1, userAnswer, questionPool[state.questionIDs[state.questionCounter-1]].answer);
     if (userAnswer === questionPool[state.questionIDs[state.questionCounter-1]].answer) {
       state.score++;
-      console.log('correct!');
+      // console.log('correct!');
     }
+
+    state.page = 'question-result';
+
+
+    render();
+  });
+
+  body.on('submit', 'form#question-result-form', (e) => {
+    e.preventDefault();
+    const userAnswer = parseInt($('input[name=userAnswer]:checked').val(), 10);
+    state.userAnswer = userAnswer;
+
     if (state.questionCount === state.questionCounter) {
-      state.page = 'results'
+      state.page = 'results';
       state.userAnswer = null;
     }
     else {
+      state.page = 'question';
       state.questionCounter++;
     }
 
     render();
   });
 
-  body.on('submit', 'form#results', (e) => {
+  body.on('submit', 'form#results-form', (e) => {
     e.preventDefault();
-    // set page back to intro
-    // re-generate questionIDs array
-    // set userAnswer: null,
-    // set score: 0,
-    // set questionCounter: 0,
+
+    state.page = 'intro';
+    // TODO re-generate questionIDs array
+    state.userAnswer = null,
+    state.score = 0;
+    state.questionCounter = 0;
     render();
   });
 
@@ -188,10 +202,13 @@ const render = function () {
 
   switch(state.page){
     case 'question':
-      page = renderQuestionPage(state.questionIDs[state.questionCounter-1], state.userAnswer);
+      page = renderQuestionPage(state.questionIDs[state.questionCounter-1]);
+      break;
+    case 'question-result':
+      page = renderQuestionResultPage(state.questionIDs[state.questionCounter-1], state.userAnswer, questionPool[state.questionCounter-1].answer);
       break;
     case 'results':
-      page = renderResultsPage();
+      page = renderQuizResultsPage();
       break;
     case 'intro':
     default:
@@ -213,7 +230,7 @@ const renderIntroPage = function () {
     aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
     Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
     occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-    
+
     <form id = 'intro-form'>
       <label for="quiz-start"></label>
       <button name='quiz-start' id='quiz-start' type='submit'>Start</button>
@@ -222,58 +239,123 @@ const renderIntroPage = function () {
   </main>`;
 };
 
-const renderQuestionPage = function (questionNum, userAnswer) {
+const renderQuestionPage = function (questionNum) {
 
   const question = questionPool[state.questionIDs[state.questionCounter-1]];
-  
+
   return `
     <main id="question-page" >
 
       <h1 id="quiz-title">Quiz App</h1>
 
+      <ul id="quiz-status">
+        <li>Question: ${state.questionCounter}/${state.questionCount}</li>
+        <li>Score: ${state.score}/${state.questionCount}</li>
+      </ul>
 
+      <div>
 
-        <ul id="quiz-status">
-          <li>Question: ${state.questionCounter}/${state.questionCount}</li>
-          <li>Score: ${state.score}/${state.questionCount}</li>
-        </ul>
+        <h2 id="prompt">${question.prompt}</h2>
 
-        <div>
+        <form id="question-form">
 
-          <h2 id="prompt">${question.prompt}</h2>
+          <!-- -->
 
-          <form id="question-form">
-
+          <label for="A">
             <input type="radio" id="A" name="userAnswer" value="0">
-              <label for="A">${question.choices[0]}</label>
+            ${question.choices[0]}
+          </label>
 
-              <br /> <!-- DO with CSS -->
-      
-        <input type="radio" id="B" name="userAnswer" value="1">
-                <label for="B">${question.choices[1]}</label>
+          <label for="B">
+            <input type="radio" id="B" name="userAnswer" value="1">
+            ${question.choices[1]}
+          </label>
 
-                <br /> <!-- DO with CSS -->
-        
-        <input type="radio" id="C" name="userAnswer" value="2">
-                  <label for="C">${question.choices[2]}</label>
+          <label for="C">
+            <input type="radio" id="C" name="userAnswer" value="2">
+            ${question.choices[2]}
+          </label>
 
-                  <br /> <!-- DO with CSS -->
-          
-        <input type="radio" id="D" name="userAnswer" value="3">
-                    <label for="D">${question.choices[3]}</label>
+          <label for="D">
+            <input type="radio" id="D" name="userAnswer" value="3">
+            ${question.choices[3]}
+          </label>
 
-                    <br /><br /> <!-- DO with CSS -->
-            
         <button type="submit">Submit Answer</button>
       </form>
     </div>
   </main>`;
 };
 
-const renderResultsPage = function () {
+const renderQuestionResultPage = function (questionNum, userAnswer, correctAnswer) {
 
-  // return html for page
-  return 'results page';
+  const question = questionPool[state.questionIDs[state.questionCounter-1]];
+
+  const classes = ['','','',''];
+
+  if (userAnswer === correctAnswer) {
+    classes[correctAnswer] = 'class="correct"';
+  } else {
+    classes[userAnswer] = 'class="wrong"';
+    classes[correctAnswer] = 'class="correct"';
+  }
+
+  return `
+    <main id="question-page" >
+
+      <h1 id="quiz-title">Quiz App</h1>
+
+      <ul id="quiz-status">
+        <li>Question: ${state.questionCounter}/${state.questionCount}</li>
+        <li>Score: ${state.score}/${state.questionCount}</li>
+      </ul>
+
+      <div>
+
+        <h2 id="prompt">${question.prompt}</h2>
+
+        <form id="question-result-form">
+
+          <label for="A" ${classes[0]}>
+            <input type="radio" id="A" name="userAnswer" value="0">
+            ${question.choices[0]}
+          </label>
+
+          <label for="B" ${classes[1]}>
+            <input type="radio" id="B" name="userAnswer" value="1">
+            ${question.choices[1]}
+          </label>
+
+          <label for="C" ${classes[2]}>
+            <input type="radio" id="C" name="userAnswer" value="2">
+            ${question.choices[2]}
+          </label>
+
+          <label for="D" ${classes[3]}>
+            <input type="radio" id="D" name="userAnswer" value="3">
+            ${question.choices[3]}
+          </label>
+
+        <button type="submit">Continue</button>
+      </form>
+    </div>
+  </main>`;
+};
+
+const renderQuizResultsPage = function () {
+
+  return `
+    <main class='results-page'>
+    <h1>Results</h1>
+
+    <p>Total Score: ${state.score}/${state.questionCount}</p>
+
+    <form id ='results-form'>
+      <label for="quiz-start">Try again?</label>
+      <button name='quiz-start' id='quiz-start' type='submit'>Start</button>
+    </form>
+
+  </main>`;
 };
 
 const main = function () {
