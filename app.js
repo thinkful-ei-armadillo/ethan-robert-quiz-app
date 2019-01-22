@@ -212,4 +212,4 @@ const main = function () {
   render();
 };
 
-// $(main);
+$(main);
