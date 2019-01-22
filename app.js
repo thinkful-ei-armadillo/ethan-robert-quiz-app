@@ -149,14 +149,15 @@ const attachEventHandlers = function () {
     e.preventDefault();
     const userAnswer = parseInt($('input[name=userAnswer]:checked').val(), 10);
     state.userAnswer = userAnswer;
-    console.log(userAnswer, questionPool[state.questionIDs[state.questionCounter]].answer - 1);
-    if (userAnswer === questionPool[state.questionIDs[state.questionCounter]].answer-1) {
+
+    console.log(state.questionIDs[state.questionCounter] - 1, userAnswer, questionPool[state.questionIDs[state.questionCounter-1]].answer);
+    if (userAnswer === questionPool[state.questionIDs[state.questionCounter-1]].answer) {
       state.score++;
       console.log('correct!');
     }
-
     if (state.questionCount === state.questionCounter) {
       state.page = 'results'
+      state.userAnswer = null;
     }
     else {
       state.questionCounter++;
