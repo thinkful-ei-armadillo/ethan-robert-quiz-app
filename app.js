@@ -2,7 +2,7 @@
 
 console.log('app loaded');
 
-const questions = [
+const questionPool = [
 
   {
     prompt: "What musical instrument does Lisa Simpson play?",
@@ -106,16 +106,19 @@ const questions = [
   },
 ];
 
+
 const state = {
 
   // Number of questions to ask per quiz
   questionCount: 5,
 
+  questionIDs: [ 0, 1, 2, 3, 4,],
+
   // Which "page" to display
   page: 'intro',
 
   // Which question to ask (an index of questions array)
-  questionID: null,
+  // questionID: null,
 
   // Which choice the user selected (an index of questions[questionID].choices)
   userAnswer: null,
@@ -129,3 +132,84 @@ const state = {
 
 
 console.log(state);
+
+const attachEventHandlers = function () {
+  // attach all event handlers to body, use event delegation
+
+  const body = $('body');
+
+  body.on('submit', 'form#intro', (e) => {
+    state.page = 'question';
+    state.questionCounter++;
+    render();
+  });
+
+  body.on('submit', 'form#question', (e) => {
+    // ask radio button for value, set state.userAnsewr
+    // compare userAnswer to right answer
+    // if right, increment state.score
+
+    // check question count
+      // either, set page to results
+      // or increment question counter
+
+    render();
+  });
+
+  body.on('submit', 'form#results', (e) => {
+
+    // set page back to intro
+    // re-generate questionIDs array
+    // set userAnswer: null,
+    // set score: 0,
+    // set questionCounter: 0,
+    render();
+  });
+
+};
+
+const render = function () {
+
+  let page = '';
+
+  // look at state
+
+  // switch looking at state.page
+
+  // intro
+    page = renderIntroPage();
+  // question
+    page = renderQuestionPage(state.questionID, state.userAnswer);
+  // results
+    page = renderResultsPage();
+
+  $('body').html(page);
+};
+
+const renderIntroPage = function () {
+
+  // return html for page
+  return 'intro page';
+};
+
+const renderQuestionPage = function (questionNum, userAnswer) {
+
+  // return html for page
+  return `question page ${questionNum}, ${userAnswer}`;
+};
+
+const renderResultsPage = function () {
+
+  // return html for page
+  return 'results page';
+};
+
+const main = function () {
+
+  // generate
+
+  attachEventHandlers();
+  render();
+};
+
+// $(main);
