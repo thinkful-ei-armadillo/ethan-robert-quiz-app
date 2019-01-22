@@ -12,25 +12,27 @@
 
     <p>Total Score: XX/XX</p>
 
-    <ul>
-      <li><ul>
-        <li>question 1</li>
-        <li>Your answer: a</li>
-        <li>correct answer: c</li>
-      </ul></li>
-      <li>
+    <ol id='quiz-results'>
+      <li class='results-item'>
+        <ul>
+          <li>question 1</li>
+          <li>Your answer: a</li>
+          <li>correct answer: c</li>
+        </ul>
+      </li>
+      <li class='results-item'>
         <ul>
           <li>question 2</li>
           <li>Your answer: b</li>
           <li>correct answer: b</li>
         </ul>
       </li>
-    </ul>
+    </ol>
   
     
-    <form action="question.html">
+    <form action="question.html" id ='results-form'>
       <label for="quiz-start">Try again?</label>
-      <button name='quiz-start' id='quiz-start'>Start</button>
+      <button name='quiz-start' id='quiz-start' type='submit'>Start</button>
     </form>
 
   </main>
