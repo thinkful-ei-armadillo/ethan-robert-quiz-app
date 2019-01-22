@@ -138,13 +138,15 @@ const attachEventHandlers = function () {
 
   const body = $('body');
 
-  body.on('submit', 'form#intro', (e) => {
+  body.on('submit', 'form#intro-form', (e) => {
+    e.preventDefault();
     state.page = 'question';
     state.questionCounter++;
     render();
   });
 
   body.on('submit', 'form#question', (e) => {
+    
     // ask radio button for value, set state.userAnsewr
     // compare userAnswer to right answer
     // if right, increment state.score
@@ -176,12 +178,18 @@ const render = function () {
 
   // switch looking at state.page
 
-  // intro
-    page = renderIntroPage();
-  // question
-    page = renderQuestionPage(state.questionID, state.userAnswer);
-  // results
-    page = renderResultsPage();
+  switch(state.page){
+    case 'question':
+      page = renderQuestionPage(state.questionIDs[state.questionCounter-1], state.userAnswer);
+      break;
+    case 'results':
+      page = renderResultsPage();
+      break;
+    case 'intro':
+    default:
+      page = renderIntroPage();
+      break;
+  }
 
   $('body').html(page);
 };
@@ -189,13 +197,69 @@ const render = function () {
 const renderIntroPage = function () {
 
   // return html for page
-  return 'intro page';
+  return `
+    <main class='intro-page'>
+    <h1>Welcome to the Lorem Quiz</h1>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
+    aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+    occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    
+    <form id = 'intro-form'>
+      <label for="quiz-start"></label>
+      <button name='quiz-start' id='quiz-start' type='submit'>Start</button>
+    </form>
+
+  </main>`;
 };
 
 const renderQuestionPage = function (questionNum, userAnswer) {
 
-  // return html for page
-  return `question page ${questionNum}, ${userAnswer}`;
+  const question = questionPool[state.questionIDs[state.questionCounter-1]];
+  console.log(question); 
+  return `
+    <main id="question-page" >
+
+      <h1 id="quiz-title">Quiz App</h1>
+
+
+
+        <ul id="quiz-status">
+          <li>Question: ${state.questionCounter}/${state.questionCount}</li>
+          <li>Score: ${state.score}/${state.questionCount}</li>
+        </ul>
+
+        <div>
+
+          <h2 id="prompt">${question.prompt}</h2>
+
+          <form id="question-form" action="results.html">
+
+            <input type="radio" id="A" name="userAnswer" value="${question.choices[0]}">
+              <label for="A">${question.choices[0]}</label>
+
+              <br /> <!-- DO with CSS -->
+      
+        <input type="radio" id="B" name="userAnswer" value="${question.choices[1]}">
+                <label for="B">${question.choices[1]}</label>
+
+                <br /> <!-- DO with CSS -->
+        
+        <input type="radio" id="C" name="userAnswer" value="${question.choices[2]}">
+                  <label for="C">${question.choices[2]}</label>
+
+                  <br /> <!-- DO with CSS -->
+          
+        <input type="radio" id="D" name="userAnswer" value="${question.choices[3]}">
+                    <label for="D">${question.choices[3]}</label>
+
+                    <br /><br /> <!-- DO with CSS -->
+            
+        <button type="submit">Submit Answer</button>
+      </form>
+    </div>
+  </main>`;
 };
 
 const renderResultsPage = function () {
