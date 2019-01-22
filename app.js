@@ -145,21 +145,28 @@ const attachEventHandlers = function () {
     render();
   });
 
-  body.on('submit', 'form#question', (e) => {
-    
-    // ask radio button for value, set state.userAnsewr
-    // compare userAnswer to right answer
-    // if right, increment state.score
+  body.on('submit', 'form#question-form', (e) => {
+    e.preventDefault();
+    const userAnswer = parseInt($('input[name=userAnswer]:checked').val(), 10);
+    state.userAnswer = userAnswer;
+    console.log(userAnswer, questionPool[state.questionIDs[state.questionCounter]].answer - 1);
+    if (userAnswer === questionPool[state.questionIDs[state.questionCounter]].answer-1) {
+      state.score++;
+      console.log('correct!');
+    }
 
-    // check question count
-      // either, set page to results
-      // or increment question counter
+    if (state.questionCount === state.questionCounter) {
+      state.page = 'results'
+    }
+    else {
+      state.questionCounter++;
+    }
 
     render();
   });
 
   body.on('submit', 'form#results', (e) => {
-
+    e.preventDefault();
     // set page back to intro
     // re-generate questionIDs array
     // set userAnswer: null,
@@ -217,7 +224,7 @@ const renderIntroPage = function () {
 const renderQuestionPage = function (questionNum, userAnswer) {
 
   const question = questionPool[state.questionIDs[state.questionCounter-1]];
-  console.log(question); 
+  
   return `
     <main id="question-page" >
 
@@ -234,24 +241,24 @@ const renderQuestionPage = function (questionNum, userAnswer) {
 
           <h2 id="prompt">${question.prompt}</h2>
 
-          <form id="question-form" action="results.html">
+          <form id="question-form">
 
-            <input type="radio" id="A" name="userAnswer" value="${question.choices[0]}">
+            <input type="radio" id="A" name="userAnswer" value="0">
               <label for="A">${question.choices[0]}</label>
 
               <br /> <!-- DO with CSS -->
       
-        <input type="radio" id="B" name="userAnswer" value="${question.choices[1]}">
+        <input type="radio" id="B" name="userAnswer" value="1">
                 <label for="B">${question.choices[1]}</label>
 
                 <br /> <!-- DO with CSS -->
         
-        <input type="radio" id="C" name="userAnswer" value="${question.choices[2]}">
+        <input type="radio" id="C" name="userAnswer" value="2">
                   <label for="C">${question.choices[2]}</label>
 
                   <br /> <!-- DO with CSS -->
           
-        <input type="radio" id="D" name="userAnswer" value="${question.choices[3]}">
+        <input type="radio" id="D" name="userAnswer" value="3">
                     <label for="D">${question.choices[3]}</label>
 
                     <br /><br /> <!-- DO with CSS -->
