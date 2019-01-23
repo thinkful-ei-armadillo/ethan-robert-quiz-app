@@ -221,11 +221,6 @@ const attachEventHandlers = function () {
 
     e.preventDefault();
 
-    // BUG we should use deep copy in pickQuestions()
-    // state.questions.forEach((q) => {
-    //   q.userAnswer = null;
-    // });
-
     state.page = 'question';
     state.questions = pickQuestions(5);
 
