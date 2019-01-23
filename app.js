@@ -13,7 +13,7 @@ const questionPool = [
     userAnswer: null,
   },
   {
-    prompt: "What is Ned Flanders wife's name",
+    prompt: "What is Ned Flanders wife's name?",
     choices: [
       'Ruth',
       'Edna',
@@ -235,7 +235,7 @@ const render = function () {
   switch (state.page) {
 
   case 'intro' :
-      page = renderQuestionPage();
+      page = renderIntroPage();
     break;
 
   case 'question':
@@ -308,22 +308,20 @@ const renderQuestionPage = function () {
   let page = `<main id="question-page">`;
 
   page += `
-    <ul id="quiz-status">
-      <li>Question: ${questionNum}/${totalQuestions}</li>
-      <li>
+    <div id="quiz-status">
+      <div id = "question-number">Question: ${questionNum}/${totalQuestions}</div>
+      <div id = "progress-bar">
 
         <label for="progress"></label>
         <progress id="progress" max="${totalQuestions}" value="${questionNum}">
           ${questionNum}/${totalQuestions}
         </progress>
 
-      </li>
-      <li>Score: ${score}</li>
-    </ul>`;
+      </div>
+      <div id = "score">Score: ${score}</div>
+    </div>`;
 
   page += `<div>`;
-
-  page += `<div class='container'>`;
 
   page += `<form id="question">`;
 
@@ -331,8 +329,8 @@ const renderQuestionPage = function () {
 
   question.choices.forEach((val, i) => {
     page += `
-          <label for="choice-${i}">
-            <input type="radio" id="choice-${i}" name="userAnswer" value="${i}">
+          <label for="choice-${i}" class = "choices">
+            <input type="radio" id="choice-${i}" name="userAnswer" value="${i}" required>
             ${val}
           </label>`;
   });
@@ -340,8 +338,6 @@ const renderQuestionPage = function () {
   page += `<button type="submit">Submit</button>`;
 
   page += `</form>`;
-
-  page += `</div>`;
 
   page += `</div>`;
 
@@ -412,25 +408,26 @@ const renderResultsPage = function () {
   }).length;
 
   let page = `
-    <main class='results-page'>
+    <main id='results-page'>
       <h1>Results</h1>
 
-      <p>You scored <strong>${score}</strong> out of <strong>${totalQuestions}</strong></p>
+      <p id="results-string">You scored <strong>${score}</strong> out of <strong>${totalQuestions}</strong></p>
   `;
 
   page += `<ol>`;
   state.questions.forEach((q) => {
 
-    let wrongAnswer = '';
+    let outcomeClass = 'correct';
     if (q.userAnswer !== q.correctAnswer) {
-      wrongAnswer = `<p class="wrong">${q.choices[q.userAnswer]}</p>`
+      outcomeClass = 'wrong';
     }
 
     page += `
       <li>
-        <p>${q.prompt}</p>
-        <p class="correct">${q.choices[q.correctAnswer]}</p>
-        ${wrongAnswer}
+        <p class="question">${q.prompt}</p>
+        <p class = "outcome">The correct answer is <strong>${q.choices[q.correctAnswer]}</strong></p>
+        <p class = "outcome">Your answer is <span class="${outcomeClass}"> ${ q.choices[q.userAnswer] }</span ></p >
+        
       </li>
     `;
 
