@@ -235,7 +235,7 @@ const render = function () {
   switch (state.page) {
 
   case 'intro' :
-    page = renderIntroPage();
+      page = renderQuestionPage();
     break;
 
   case 'question':
@@ -323,10 +323,11 @@ const renderQuestionPage = function () {
 
   page += `<div>`;
 
-  page += `<h2 id="prompt">${question.prompt}</h2>`;
-
+  page += `<div class='container'>`;
 
   page += `<form id="question">`;
+
+  page += `<h2 id="prompt">${question.prompt}</h2>`;
 
   question.choices.forEach((val, i) => {
     page += `
@@ -336,10 +337,11 @@ const renderQuestionPage = function () {
           </label>`;
   });
 
-  page += `<button type="submit">Submit Answer</button>`;
+  page += `<button type="submit">Submit</button>`;
 
   page += `</form>`;
 
+  page += `</div>`;
 
   page += `</div>`;
 
