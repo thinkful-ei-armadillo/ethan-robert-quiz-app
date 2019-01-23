@@ -166,7 +166,7 @@ const attachEventHandlers = function () {
   const body = $('body');
 
   // Handle intro page submission
-  body.on('submit', 'form#intro-form', (e) => {
+  body.on('submit', 'form#intro', (e) => {
 
     e.preventDefault();
 
@@ -176,7 +176,7 @@ const attachEventHandlers = function () {
   });
 
   // Handle question page submission
-  body.on('submit', 'form#question-form', (e) => {
+  body.on('submit', 'form#question', (e) => {
 
     e.preventDefault();
 
@@ -198,7 +198,7 @@ const attachEventHandlers = function () {
   });
 
   // Handle answer page submission
-  body.on('submit', 'form#answer-form', (e) => {
+  body.on('submit', 'form#answer', (e) => {
 
     e.preventDefault();
 
@@ -217,7 +217,7 @@ const attachEventHandlers = function () {
   });
 
   // Handle results page submission
-  body.on('submit', 'form#results-form', (e) => {
+  body.on('submit', 'form#results', (e) => {
 
     e.preventDefault();
 
@@ -262,21 +262,30 @@ const render = function () {
 
 const renderIntroPage = function () {
 
-  return `
+  const page = `
     <main class='intro-page'>
-    <h1>Welcome to the Lorem Quiz</h1>
 
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
-    aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-    occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <h1>Welcome to the Simpson Quiz Extravaganza</h1>
 
-    <form id='intro-form'>
-      <label for="quiz-start"></label>
-      <button name='quiz-start' id='quiz-start' type='submit'>Start</button>
-    </form>
+      <form id='intro'>
 
-  </main>`;
+        <label for="num-questions">How many questions would you like to answer?</label>
+
+        <select id="num-questions">
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+
+        <button id='quiz-start' type='submit'>Start</button>
+      </form>
+
+    </main>`;
+
+  return page;
 };
 
 const renderQuestionPage = function () {
@@ -296,48 +305,48 @@ const renderQuestionPage = function () {
 
   const question = state.questions[questionIndex];
 
-  return `
-    <main id="question-page" >
+  let page = `<main id="question-page">`;
 
-      <h1 id="quiz-title">Quiz App</h1>
+  page += `
+    <ul id="quiz-status">
+      <li>Question: ${questionNum}/${totalQuestions}</li>
+      <li>
 
-      <ul id="quiz-status">
-        <li>Question: ${questionNum}/${totalQuestions}</li>
-        <li>Score: ${score}/${totalQuestions}</li>
-      </ul>
+        <label for="progress"></label>
+        <progress id="progress" max="${totalQuestions}" value="${questionNum}">
+          ${questionNum}/${totalQuestions}
+        </progress>
 
-      <div>
+      </li>
+      <li>Score: ${score}</li>
+    </ul>`;
 
-        <h2 id="prompt">${question.prompt}</h2>
+  page += `<div>`;
 
-        <form id="question-form">
+  page += `<h2 id="prompt">${question.prompt}</h2>`;
 
-          <!-- -->
 
-          <label for="A">
-            <input type="radio" id="A" name="userAnswer" value="0">
-            ${question.choices[0]}
-          </label>
+  page += `<form id="question">`;
 
-          <label for="B">
-            <input type="radio" id="B" name="userAnswer" value="1">
-            ${question.choices[1]}
-          </label>
+  question.choices.forEach((val, i) => {
+    page += `
+          <label for="choice-${i}">
+            <input type="radio" id="choice-${i}" name="userAnswer" value="${i}">
+            ${val}
+          </label>`;
+  });
 
-          <label for="C">
-            <input type="radio" id="C" name="userAnswer" value="2">
-            ${question.choices[2]}
-          </label>
+  page += `<button type="submit">Submit Answer</button>`;
 
-          <label for="D">
-            <input type="radio" id="D" name="userAnswer" value="3">
-            ${question.choices[3]}
-          </label>
+  page += `</form>`;
 
-        <button type="submit">Submit Answer</button>
-      </form>
-    </div>
-  </main>`;
+
+  page += `</div>`;
+
+  page += `</main>`;
+
+
+  return page;
 };
 
 const renderAnswerPage = function () {
@@ -352,65 +361,43 @@ const renderAnswerPage = function () {
     }
   }, -1);
 
-  const questionNum = questionIndex + 1;
-  const totalQuestions = state.questions.length;
-
-  // Count correctly answered questions
-  const score = state.questions.filter((q) => {
-    return q.userAnswer === q.correctAnswer;
-  }).length;
-
   const question = state.questions[questionIndex];
 
-  const classes = ['','','',''];
+  const title = (question.userAnswer === question.correctAnswer) ? "Whoo Hoo!" : "D'oh!";
 
+  let gif;
   if (question.userAnswer === question.correctAnswer) {
-    classes[question.correctAnswer] = 'class="correct"';
+    gif = {
+      url: '/assets/whoo-hoo.gif',
+      alt: '',
+    };
   } else {
-    classes[question.userAnswer] = 'class="wrong"';
-    classes[question.correctAnswer] = 'class="correct"';
+    gif = {
+      url: '/assets/doh.gif',
+      alt: ''
+    };
   }
 
-  return `
-    <main id="question-page" >
+  let page = `<main id="answer-page" >`;
 
-      <h1 id="quiz-title">Quiz App</h1>
+  page += `<h1 id="quiz-title">${title}</h1>`;
 
-      <ul id="quiz-status">
-        <li>Question: ${questionNum}/${totalQuestions}</li>
-        <li>Score: ${score}/${totalQuestions}</li>
-      </ul>
+  page += `<img id="answer-gif" src="${gif.url}" alt="${gif.alt}">`;
 
-      <div>
+  if (question.userAnswer !== question.correctAnswer) {
+    page += `<p>You answered <strong>${question.choices[question.userAnswer]}</strong></p>`;
+    page += `<p>You should have answered <strong>${question.choices[question.correctAnswer]}</strong></p>`;
+  }
 
-        <h2 id="prompt">${question.prompt}</h2>
+  page += `<form id="answer">`;
 
-        <form id="answer-form">
+  page += `<button type="submit">Continue</button>`;
 
-          <label for="A" ${classes[0]}>
-            <input type="radio" id="A" name="userAnswer" value="0">
-            ${question.choices[0]}
-          </label>
+  page += `</form>`;
 
-          <label for="B" ${classes[1]}>
-            <input type="radio" id="B" name="userAnswer" value="1">
-            ${question.choices[1]}
-          </label>
+  page += `</main>`;
 
-          <label for="C" ${classes[2]}>
-            <input type="radio" id="C" name="userAnswer" value="2">
-            ${question.choices[2]}
-          </label>
-
-          <label for="D" ${classes[3]}>
-            <input type="radio" id="D" name="userAnswer" value="3">
-            ${question.choices[3]}
-          </label>
-
-        <button type="submit">Continue</button>
-      </form>
-    </div>
-  </main>`;
+  return page;
 };
 
 const renderResultsPage = function () {
@@ -422,18 +409,42 @@ const renderResultsPage = function () {
     return q.userAnswer === q.correctAnswer;
   }).length;
 
-  return `
+  let page = `
     <main class='results-page'>
-    <h1>Results</h1>
+      <h1>Results</h1>
 
-    <p>Total Score: ${score}/${totalQuestions}</p>
+      <p>You scored <strong>${score}</strong> out of <strong>${totalQuestions}</strong></p>
+  `;
 
-    <form id ='results-form'>
-      <label for="quiz-start">Try again?</label>
-      <button name='quiz-start' id='quiz-start' type='submit'>Start</button>
+  page += `<ol>`;
+  state.questions.forEach((q) => {
+
+    let wrongAnswer = '';
+    if (q.userAnswer !== q.correctAnswer) {
+      wrongAnswer = `<p class="wrong">${q.choices[q.userAnswer]}</p>`
+    }
+
+    page += `
+      <li>
+        <p>${q.prompt}</p>
+        <p class="correct">${q.choices[q.correctAnswer]}</p>
+        ${wrongAnswer}
+      </li>
+    `;
+
+
+  });
+  page += `</ol>`;
+
+  page += `
+    <form id='results'>
+      <button id='try-again' type='submit'>Try Again?</button>
     </form>
+  `;
 
-  </main>`;
+  page += `</main>`;
+
+  return page;
 };
 
 $(main);
