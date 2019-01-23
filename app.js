@@ -52,7 +52,7 @@ const questionPool = [
       'The Decapitation of Larry Leadfoot',
       'Dig your own Grave and Save',
     ],
-    answer: 1,
+    answer: 0,
   },
   {
     prompt: "Who founded the town of Springfield?",
