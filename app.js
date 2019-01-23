@@ -133,7 +133,13 @@ const pickQuestions = function (count) {
   const uniqueQuestions = [];
 
   uniqueIndexes.forEach((i) => {
-    uniqueQuestions.push(questionPool[i]);
+
+    uniqueQuestions.push({
+      prompt        : questionPool[i].prompt,
+      choices       : questionPool[i].choices.map((choice) => choice),
+      correctAnswer : questionPool[i].correctAnswer,
+      userAnswer    : questionPool[i].userAnswer,
+    });
   });
 
   return uniqueQuestions;
@@ -216,9 +222,9 @@ const attachEventHandlers = function () {
     e.preventDefault();
 
     // BUG we should use deep copy in pickQuestions()
-    state.questions.forEach((q) => {
-      q.userAnswer = null;
-    });
+    // state.questions.forEach((q) => {
+    //   q.userAnswer = null;
+    // });
 
     state.page = 'question';
     state.questions = pickQuestions(5);
