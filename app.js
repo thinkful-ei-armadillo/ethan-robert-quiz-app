@@ -1,9 +1,6 @@
 'use strict';
 
-console.log('app loaded');
-
 const questionPool = [
-
   {
     prompt: "What musical instrument does Lisa Simpson play?",
     choices: [
@@ -12,7 +9,8 @@ const questionPool = [
       'Piano',
       'Clarinet',
     ],
-    answer: 1,
+    correctAnswer: 1,
+    userAnswer: null,
   },
   {
     prompt: "What is Ned Flanders wife's name",
@@ -22,7 +20,8 @@ const questionPool = [
       'Maude',
       'Marge',
     ],
-    answer: 2,
+    correctAnswer: 2,
+    userAnswer: null,
   },
   {
     prompt: "What is the name of Bart's best friend?",
@@ -32,7 +31,8 @@ const questionPool = [
       'Otto',
       'Karl',
     ],
-    answer: 1,
+    correctAnswer: 1,
+    userAnswer: null,
   },
   {
     prompt: "What is Springfield's neighboring rival town called?",
@@ -42,7 +42,8 @@ const questionPool = [
       'Poolville',
       'Dirksville',
     ],
-    answer: 0,
+    correctAnswer: 0,
+    userAnswer: null,
   },
   {
     prompt: "Which of the following movies does Troy McClure NOT star in?",
@@ -52,7 +53,8 @@ const questionPool = [
       'The Decapitation of Larry Leadfoot',
       'Dig your own Grave and Save',
     ],
-    answer: 0,
+    correctAnswer: 0,
+    userAnswer: null,
   },
   {
     prompt: "Who founded the town of Springfield?",
@@ -62,7 +64,8 @@ const questionPool = [
       'Jebediah Springfield',
       'Isaac Springfield',
     ],
-    answer: 2,
+    correctAnswer: 2,
+    userAnswer: null,
   },
   {
     prompt: "Who sold the Monorail to Springfield ?",
@@ -72,7 +75,8 @@ const questionPool = [
       'Mr. Burns',
       'Lyle Lanely',
     ],
-    answer: 3,
+    correctAnswer: 3,
+    userAnswer: null,
   },
   {
     prompt: "What is Marge Simpson's maiden name?",
@@ -82,7 +86,8 @@ const questionPool = [
       'Treado',
       'Burns',
     ],
-    answer: 1,
+    correctAnswer: 1,
+    userAnswer: null,
   },
   {
     prompt: "On what street do the Simpsons live?",
@@ -92,7 +97,8 @@ const questionPool = [
       'Maplewood Crest',
       'Soundbeach Ave',
     ],
-    answer: 0,
+    correctAnswer: 0,
+    userAnswer: null,
   },
   {
     prompt: "What was the secret ingredient in a Flaming Moe?",
@@ -102,126 +108,159 @@ const questionPool = [
       'Denture Cleaner',
       'Shampoo',
     ],
-    answer: 1,
+    correctAnswer: 1,
+    userAnswer: null,
   },
 ];
 
+const state = {};
 
-const state = {
+/**
+ * Pick count unique elements from questionPool
+ */
+const pickQuestions = function (count) {
 
-  // Number of questions to ask per quiz
-  questionCount: 5,
+  const uniqueIndexes = [];
 
-  questionIDs: [ 0, 1, 2, 3, 4,],
+  while (uniqueIndexes.length < count) {
+    const r = Math.floor(Math.random() * Math.floor(count));
 
-  // Which "page" to display
-  page: 'intro',
+    if (uniqueIndexes.includes(r) === false) {
+      uniqueIndexes.push(r);
+    }
+  }
 
-  // Which question to ask (an index of questions array)
-  // questionID: null,
+  const uniqueQuestions = [];
 
-  // Which choice the user selected (an index of questions[questionID].choices)
-  userAnswer: null,
+  uniqueIndexes.forEach((i) => {
+    uniqueQuestions.push(questionPool[i]);
+  });
 
-  // Number of correct answer made so far
-  score: 0,
-
-  // Number of questions asked in this quiz  so far
-  questionCounter: 0,
+  return uniqueQuestions;
 };
 
+/**
+ * Engage!
+ */
+const main = function () {
 
-console.log(state);
+  // Set initial state
+  state.page = 'intro';
+  state.questions = pickQuestions(5);
 
+  attachEventHandlers();
+  render();
+};
+
+/**
+ * Attach all event handlers
+ */
 const attachEventHandlers = function () {
-  // attach all event handlers to body, use event delegation
 
   const body = $('body');
 
+  // Handle intro page submission
   body.on('submit', 'form#intro-form', (e) => {
+
     e.preventDefault();
+
     state.page = 'question';
-    state.questionCounter++;
+
     render();
   });
 
+  // Handle question page submission
   body.on('submit', 'form#question-form', (e) => {
+
     e.preventDefault();
-    const userAnswer = parseInt($('input[name=userAnswer]:checked').val(), 10);
-    state.userAnswer = userAnswer;
 
-    // console.log(state.questionIDs[state.questionCounter] - 1, userAnswer, questionPool[state.questionIDs[state.questionCounter-1]].answer);
-    if (userAnswer === questionPool[state.questionIDs[state.questionCounter-1]].answer) {
-      state.score++;
-      // console.log('correct!');
-    }
+    // Find index of first un-answered question
+    const questionIndex = state.questions.findIndex((q) => {
+      return q.userAnswer === null;
+    });
 
-    state.page = 'question-result';
+    // Get value of selected radio button (as a number)
+    const userAnswer = Number.parseInt(
+      $('input[name=userAnswer]:checked').val(),
+      10
+    );
 
+    state.page = 'answer';
+    state.questions[questionIndex].userAnswer = userAnswer;
 
     render();
   });
 
-  body.on('submit', 'form#question-result-form', (e) => {
-    e.preventDefault();
-    const userAnswer = parseInt($('input[name=userAnswer]:checked').val(), 10);
-    state.userAnswer = userAnswer;
+  // Handle answer page submission
+  body.on('submit', 'form#answer-form', (e) => {
 
-    if (state.questionCount === state.questionCounter) {
+    e.preventDefault();
+
+    // If every question has been answered, we are done
+    const done = state.questions.every((q) => {
+      return q.userAnswer !== null;
+    });
+
+    if (done) {
       state.page = 'results';
-      state.userAnswer = null;
-    }
-    else {
+    } else {
       state.page = 'question';
-      state.questionCounter++;
     }
 
     render();
   });
 
+  // Handle results page submission
   body.on('submit', 'form#results-form', (e) => {
+
     e.preventDefault();
 
-    state.page = 'intro';
-    // TODO re-generate questionIDs array
-    state.userAnswer = null,
-    state.score = 0;
-    state.questionCounter = 0;
+    // BUG we should use deep copy in pickQuestions()
+    state.questions.forEach((q) => {
+      q.userAnswer = null;
+    });
+
+    state.page = 'question';
+    state.questions = pickQuestions(5);
+
     render();
   });
-
 };
 
 const render = function () {
 
   let page = '';
 
-  // look at state
+  switch (state.page) {
 
-  // switch looking at state.page
+  case 'intro' :
+    page = renderIntroPage();
+    break;
 
-  switch(state.page){
-    case 'question':
-      page = renderQuestionPage(state.questionIDs[state.questionCounter-1]);
-      break;
-    case 'question-result':
-      page = renderQuestionResultPage(state.questionIDs[state.questionCounter-1], state.userAnswer, questionPool[state.questionCounter-1].answer);
-      break;
-    case 'results':
-      page = renderQuizResultsPage();
-      break;
-    case 'intro':
-    default:
-      page = renderIntroPage();
-      break;
+  case 'question':
+    page = renderQuestionPage();
+    break;
+
+  case 'answer':
+    page = renderAnswerPage();
+    break;
+
+  case 'results':
+    page = renderResultsPage();
+    break;
+
+  default:
+    page = renderIntroPage();
+    break;
   }
 
   $('body').html(page);
+
+  console.log(state);
 };
 
 const renderIntroPage = function () {
 
-  // return html for page
   return `
     <main class='intro-page'>
     <h1>Welcome to the Lorem Quiz</h1>
@@ -231,7 +270,7 @@ const renderIntroPage = function () {
     Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
     occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 
-    <form id = 'intro-form'>
+    <form id='intro-form'>
       <label for="quiz-start"></label>
       <button name='quiz-start' id='quiz-start' type='submit'>Start</button>
     </form>
@@ -239,9 +278,22 @@ const renderIntroPage = function () {
   </main>`;
 };
 
-const renderQuestionPage = function (questionNum) {
+const renderQuestionPage = function () {
 
-  const question = questionPool[state.questionIDs[state.questionCounter-1]];
+  // Find first unanswered question
+  const questionIndex = state.questions.findIndex((q) => {
+    return q.userAnswer === null;
+  });
+
+  const questionNum = questionIndex + 1;
+  const totalQuestions = state.questions.length;
+
+  // Count correctly answered questions
+  const score = state.questions.filter((q) => {
+    return q.userAnswer === q.correctAnswer;
+  }).length;
+
+  const question = state.questions[questionIndex];
 
   return `
     <main id="question-page" >
@@ -249,8 +301,8 @@ const renderQuestionPage = function (questionNum) {
       <h1 id="quiz-title">Quiz App</h1>
 
       <ul id="quiz-status">
-        <li>Question: ${state.questionCounter}/${state.questionCount}</li>
-        <li>Score: ${state.score}/${state.questionCount}</li>
+        <li>Question: ${questionNum}/${totalQuestions}</li>
+        <li>Score: ${score}/${totalQuestions}</li>
       </ul>
 
       <div>
@@ -287,17 +339,35 @@ const renderQuestionPage = function (questionNum) {
   </main>`;
 };
 
-const renderQuestionResultPage = function (questionNum, userAnswer, correctAnswer) {
+const renderAnswerPage = function () {
 
-  const question = questionPool[state.questionIDs[state.questionCounter-1]];
+  // Get last answered question
+  const questionIndex = state.questions.reduce((acc, q, i) => {
+
+    if (q.userAnswer !== null && i > acc) {
+      return i;
+    } else {
+      return acc;
+    }
+  }, -1);
+
+  const questionNum = questionIndex + 1;
+  const totalQuestions = state.questions.length;
+
+  // Count correctly answered questions
+  const score = state.questions.filter((q) => {
+    return q.userAnswer === q.correctAnswer;
+  }).length;
+
+  const question = state.questions[questionIndex];
 
   const classes = ['','','',''];
 
-  if (userAnswer === correctAnswer) {
-    classes[correctAnswer] = 'class="correct"';
+  if (question.userAnswer === question.correctAnswer) {
+    classes[question.correctAnswer] = 'class="correct"';
   } else {
-    classes[userAnswer] = 'class="wrong"';
-    classes[correctAnswer] = 'class="correct"';
+    classes[question.userAnswer] = 'class="wrong"';
+    classes[question.correctAnswer] = 'class="correct"';
   }
 
   return `
@@ -306,15 +376,15 @@ const renderQuestionResultPage = function (questionNum, userAnswer, correctAnswe
       <h1 id="quiz-title">Quiz App</h1>
 
       <ul id="quiz-status">
-        <li>Question: ${state.questionCounter}/${state.questionCount}</li>
-        <li>Score: ${state.score}/${state.questionCount}</li>
+        <li>Question: ${questionNum}/${totalQuestions}</li>
+        <li>Score: ${score}/${totalQuestions}</li>
       </ul>
 
       <div>
 
         <h2 id="prompt">${question.prompt}</h2>
 
-        <form id="question-result-form">
+        <form id="answer-form">
 
           <label for="A" ${classes[0]}>
             <input type="radio" id="A" name="userAnswer" value="0">
@@ -342,13 +412,20 @@ const renderQuestionResultPage = function (questionNum, userAnswer, correctAnswe
   </main>`;
 };
 
-const renderQuizResultsPage = function () {
+const renderResultsPage = function () {
+
+  const totalQuestions = state.questions.length;
+
+  // Count correctly answered questions
+  const score = state.questions.filter((q) => {
+    return q.userAnswer === q.correctAnswer;
+  }).length;
 
   return `
     <main class='results-page'>
     <h1>Results</h1>
 
-    <p>Total Score: ${state.score}/${state.questionCount}</p>
+    <p>Total Score: ${score}/${totalQuestions}</p>
 
     <form id ='results-form'>
       <label for="quiz-start">Try again?</label>
@@ -356,14 +433,6 @@ const renderQuizResultsPage = function () {
     </form>
 
   </main>`;
-};
-
-const main = function () {
-
-  // generate
-
-  attachEventHandlers();
-  render();
 };
 
 $(main);
