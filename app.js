@@ -152,7 +152,6 @@ const main = function () {
 
   // Set initial state
   state.page = 'intro';
-  state.questions = pickQuestions(5);
 
   attachEventHandlers();
   render();
@@ -170,7 +169,10 @@ const attachEventHandlers = function () {
 
     e.preventDefault();
 
+    const questionCount = $('#num-questions').val();
+
     state.page = 'question';
+    state.questions = pickQuestions(questionCount);
 
     render();
   });
@@ -221,8 +223,7 @@ const attachEventHandlers = function () {
 
     e.preventDefault();
 
-    state.page = 'question';
-    state.questions = pickQuestions(5);
+    state.page = 'intro';
 
     render();
   });
@@ -235,7 +236,7 @@ const render = function () {
   switch (state.page) {
 
   case 'intro' :
-      page = renderIntroPage();
+    page = renderIntroPage();
     break;
 
   case 'question':
@@ -427,7 +428,7 @@ const renderResultsPage = function () {
         <p class="question">${q.prompt}</p>
         <p class = "outcome">The correct answer is <strong>${q.choices[q.correctAnswer]}</strong></p>
         <p class = "outcome">Your answer is <span class="${outcomeClass}"> ${ q.choices[q.userAnswer] }</span ></p >
-        
+
       </li>
     `;
 
