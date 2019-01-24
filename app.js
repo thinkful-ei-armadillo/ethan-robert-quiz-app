@@ -367,12 +367,12 @@ const renderAnswerPage = function () {
   let gif;
   if (question.userAnswer === question.correctAnswer) {
     gif = {
-      url: '/assets/whoo-hoo.gif',
+      url: 'assets/whoo-hoo.gif',
       alt: '',
     };
   } else {
     gif = {
-      url: '/assets/doh.gif',
+      url: 'assets/doh.gif',
       alt: ''
     };
   }
